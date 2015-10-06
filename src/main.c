@@ -3,7 +3,6 @@
 #include <libappindicator/app-indicator.h>
 
 AppIndicator *indicator;
-int i = 1;
 unsigned int timeoutId;
 signed long startTime = 0;
 static void start (GtkAction* action);
@@ -15,9 +14,9 @@ gboolean time_handler(gpointer data) {
     signed long actual = g_get_monotonic_time();
     int seconds = 120 * 1000 * 1000;
     if (actual - startTime > seconds) {
-        i = 1;
         app_indicator_set_icon(indicator, "countdown-30");
         show_notification();
+        timeoutId = 0;
 
         return FALSE;
     }
@@ -33,33 +32,35 @@ gboolean time_handler(gpointer data) {
 }
 
 static void show_notification() {
-    GtkWidget *dialog;
+    GtkWidget* dialog;
     dialog = gtk_message_dialog_new (NULL,
                                      GTK_DIALOG_DESTROY_WITH_PARENT,
                                      GTK_MESSAGE_INFO,
                                      GTK_BUTTONS_CLOSE,
-                                     "It's Time!",
-                                     NULL);
+                                     "It's Time!");
 
     g_signal_connect (dialog, "response", G_CALLBACK (close_notification), NULL);
 
     gtk_widget_show (dialog);
 }
 
-static void close_notification(GtkWidget* widget) {
+static void close_notification(GtkWidget* dialog) {
     app_indicator_set_icon(indicator, "countdown");
-    gtk_widget_destroy(widget);
+    gtk_widget_destroy(dialog);
 }
 
 static void start (GtkAction* action)
 {
+    reset(NULL);
     startTime = g_get_monotonic_time();
     timeoutId = g_timeout_add(100, time_handler, NULL);
 }
 
 static void reset (GtkAction* action)
 {
-    g_source_remove(timeoutId);
+    if (timeoutId > 0) {
+        g_source_remove(timeoutId);
+    }
     app_indicator_set_icon(indicator, "countdown");
 }
 

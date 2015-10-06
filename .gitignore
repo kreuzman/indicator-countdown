@@ -23,3 +23,5 @@
 
 # Debug files
 *.dSYM/
+
+bin/
