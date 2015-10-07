@@ -1,0 +1,6 @@
+- Remove deprecated API useage
+- Code polishing
+- Configurable countdown time
+- Subtle animation
+- Serious build (configure etc.)
+- create PPA

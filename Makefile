@@ -1,5 +1,5 @@
-CFLAGS=-Wall -g `pkg-config --cflags gtk+-3.0 appindicator3-0.1`
-LIBS=`pkg-config --libs gtk+-3.0 appindicator3-0.1`
+CFLAGS=-Wall -g `pkg-config --cflags gtk+-3.0 appindicator3-0.1 libnotify`
+LIBS=`pkg-config --libs gtk+-3.0 appindicator3-0.1 libnotify`
 SRC_PATH = ./src
 BIN_PATH = ./bin
 

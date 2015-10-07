@@ -1,28 +1,43 @@
-#include <stdio.h>
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
+#include <libnotify/notify.h>
 
-AppIndicator *indicator;
-unsigned int timeoutId;
-signed long startTime = 0;
+static unsigned int const COUNTDOWN_PICS_COUNT = 30;
+
+static AppIndicator* indicator;
+static unsigned int timeout_id;
+static signed long start_time = 0;
+static unsigned int timeout_seconds = 120; // TODO must be configurable
+
 static void start (GtkAction* action);
 static void reset (GtkAction* action);
-static void show_notification();
-static void close_notification();
 
-gboolean time_handler(gpointer data) {
+static void show_notification() {
+    NotifyNotification* notification;
+    gboolean success;
+    GError* error = NULL;
+
+    notify_init ("countdown-indicator");
+    notification = notify_notification_new("Countdown",
+                                           "It's time!",
+                                           "countdown-status");
+
+    success = notify_notification_show(notification, &error);
+    notify_uninit ();
+}
+
+static gboolean time_handler(gpointer data) {
     signed long actual = g_get_monotonic_time();
-    int seconds = 120 * 1000 * 1000;
-    if (actual - startTime > seconds) {
-        app_indicator_set_icon(indicator, "countdown-30");
+    int seconds = timeout_seconds * 1000 * 1000;
+    if (actual - start_time > seconds) {
         show_notification();
-        timeoutId = 0;
+        reset(NULL);
 
         return FALSE;
     }
 
-    double ratio = (actual - startTime) / (double) seconds;
-    int pic = (30 * ratio) + 1;
+    double ratio = (actual - start_time) / (double) seconds;
+    int pic = (COUNTDOWN_PICS_COUNT * ratio) + 1;
 
     char str[12];
     sprintf(str, "countdown-%02d", pic);
@@ -31,35 +46,18 @@ gboolean time_handler(gpointer data) {
     return TRUE;
 }
 
-static void show_notification() {
-    GtkWidget* dialog;
-    dialog = gtk_message_dialog_new (NULL,
-                                     GTK_DIALOG_DESTROY_WITH_PARENT,
-                                     GTK_MESSAGE_INFO,
-                                     GTK_BUTTONS_CLOSE,
-                                     "It's Time!");
-
-    g_signal_connect (dialog, "response", G_CALLBACK (close_notification), NULL);
-
-    gtk_widget_show (dialog);
-}
-
-static void close_notification(GtkWidget* dialog) {
-    app_indicator_set_icon(indicator, "countdown");
-    gtk_widget_destroy(dialog);
-}
-
-static void start (GtkAction* action)
+static void start(GtkAction* action)
 {
     reset(NULL);
-    startTime = g_get_monotonic_time();
-    timeoutId = g_timeout_add(100, time_handler, NULL);
+    start_time = g_get_monotonic_time();
+    timeout_id = g_timeout_add(100, time_handler, NULL);
 }
 
-static void reset (GtkAction* action)
+static void reset(GtkAction* action)
 {
-    if (timeoutId > 0) {
-        g_source_remove(timeoutId);
+    if (timeout_id > 0) {
+        g_source_remove(timeout_id);
+        timeout_id = 0;
     }
     app_indicator_set_icon(indicator, "countdown");
 }
@@ -82,10 +80,10 @@ static const gchar *ui_info =
 
 int main(int argc, char** argv) {
 
-    GtkWidget *indicator_menu;
-    GtkActionGroup *action_group;
-    GtkUIManager *uim;
-    GError *error = NULL;
+    GtkWidget* indicator_menu;
+    GtkActionGroup* action_group;
+    GtkUIManager* uim;
+    GError* error = NULL;
 
     gtk_init (&argc, &argv);
 
@@ -96,15 +94,12 @@ int main(int argc, char** argv) {
     uim = gtk_ui_manager_new ();
     gtk_ui_manager_insert_action_group (uim, action_group, 0);
 
-    if (!gtk_ui_manager_add_ui_from_string (uim, ui_info, -1, &error))
-      {
+    if (!gtk_ui_manager_add_ui_from_string (uim, ui_info, -1, &error)) {
         g_message ("Failed to build menus: %s\n", error->message);
         g_error_free (error);
         error = NULL;
-      }
+    }
 
-
-    /* Indicator */
     indicator = app_indicator_new("countdown-indicator",
                                   "countdown",
                                   APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
