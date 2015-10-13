@@ -29,7 +29,7 @@ static signed long start_time = 0;
 static unsigned int timeout_seconds = 120; // TODO must be configurable
 
 static void start (GtkAction* action);
-static void reset (GtkAction* action);
+static void reset ();
 
 static void show_notification() {
     NotifyNotification* notification;
@@ -50,7 +50,7 @@ static gboolean time_handler(gpointer data) {
     int seconds = timeout_seconds * 1000 * 1000;
     if (actual - start_time > seconds) {
         show_notification();
-        reset(NULL);
+        reset();
 
         return FALSE;
     }
@@ -67,12 +67,12 @@ static gboolean time_handler(gpointer data) {
 
 static void start(GtkAction* action)
 {
-    reset(NULL);
+    reset();
     start_time = g_get_monotonic_time();
-    timeout_id = g_timeout_add(1000, time_handler, NULL);
+    timeout_id = g_timeout_add(100, time_handler, NULL);
 }
 
-static void reset(GtkAction* action)
+static void reset()
 {
     if (timeout_id > 0) {
         g_source_remove(timeout_id);
