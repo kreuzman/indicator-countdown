@@ -127,12 +127,17 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Layer 2">
-    <circle
+    <path
        style="opacity:0.87900002;fill:#19b6ee;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4808"
-       cx="12.000001"
-       cy="12"
-       r="9.000001" />
+       sodipodi:type="arc"
+       sodipodi:cx="12.000001"
+       sodipodi:cy="12"
+       sodipodi:rx="9.000001"
+       sodipodi:ry="9.000001"
+       sodipodi:start="4.712389"
+       sodipodi:end="1.5707963"
+       d="M 12.000001,2.999999 A 9.000001,9.000001 0 0 1 21.000002,12 9.000001,9.000001 0 0 1 12.000001,21.000001 l 0,-9.000001 z" />
   </g>
   <g
      inkscape:label="Layer 1"

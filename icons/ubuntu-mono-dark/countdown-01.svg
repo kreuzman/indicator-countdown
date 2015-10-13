@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r"
-   sodipodi:docname="countdown-12.svg">
+   sodipodi:docname="countdown-01.svg">
   <defs
      id="defs4">
     <marker
@@ -100,7 +100,7 @@
      inkscape:cx="12"
      inkscape:cy="12"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="false"
      inkscape:window-width="1863"
      inkscape:window-height="1056"
@@ -136,8 +136,8 @@
        sodipodi:rx="9.000001"
        sodipodi:ry="9.000001"
        sodipodi:start="4.712389"
-       sodipodi:end="4.9218285"
-       d="m 12.000001,2.999999 a 9.000001,9.000001 0 0 1 1.871205,0.1966717 L 12.000001,12 Z" />
+       sodipodi:end="4.8171087"
+       d="m 12.000001,2.999999 a 9.000001,9.000001 0 0 1 0.940756,0.049303 L 12.000001,12 Z" />
   </g>
   <g
      inkscape:label="Layer 1"

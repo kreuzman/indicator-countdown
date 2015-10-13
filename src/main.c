@@ -21,7 +21,7 @@
 #include <libappindicator/app-indicator.h>
 #include <libnotify/notify.h>
 
-static unsigned int const COUNTDOWN_PICS_COUNT = 30;
+static unsigned int const COUNTDOWN_PICS_COUNT = 60;
 
 static AppIndicator* indicator;
 static unsigned int timeout_id;
@@ -69,7 +69,7 @@ static void start(GtkAction* action)
 {
     reset(NULL);
     start_time = g_get_monotonic_time();
-    timeout_id = g_timeout_add(100, time_handler, NULL);
+    timeout_id = g_timeout_add(1000, time_handler, NULL);
 }
 
 static void reset(GtkAction* action)
