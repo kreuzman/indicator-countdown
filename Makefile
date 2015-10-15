@@ -4,8 +4,8 @@ SRC_PATH = ./src
 BIN_PATH = ./bin
 
 all:
-	gcc ${CFLAGS} ${SRC_PATH}/main.c ${LIBS} -o ${BIN_PATH}/main
+	gcc ${CFLAGS} ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/indicator-countdown
 clean:
-	rm -f ${BIN_PATH}/main
+	rm -f ${BIN_PATH}/indicator-countdown
 run:
-	${BIN_PATH}/main
+	${BIN_PATH}/indicator-countdown
