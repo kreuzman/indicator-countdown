@@ -1,11 +1,15 @@
-CFLAGS=-Wall -g `pkg-config --cflags gtk+-3.0 appindicator3-0.1 libnotify`
-LIBS=`pkg-config --libs gtk+-3.0 appindicator3-0.1 libnotify`
+CFLAGS=-Wall -g `pkg-config --cflags gtk+-3.0 appindicator3-0.1 libnotify gmodule-2.0`
+LIBS=`pkg-config --libs gtk+-3.0 appindicator3-0.1 libnotify gmodule-2.0`
 SRC_PATH = ./src
 BIN_PATH = ./bin
 
 all:
-	gcc ${CFLAGS} ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/indicator-countdown
+	rm -f ${BIN_PATH}/main && gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/main && ${BIN_PATH}/main
 clean:
-	rm -f ${BIN_PATH}/indicator-countdown
+	rm -f ${BIN_PATH}/main
+build:
+	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/main
 run:
-	${BIN_PATH}/indicator-countdown
+	${BIN_PATH}/main
+publish:
+	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/indicator-countdown

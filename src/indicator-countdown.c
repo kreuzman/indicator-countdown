@@ -26,22 +26,31 @@ static unsigned int const COUNTDOWN_PICS_COUNT = 60;
 static AppIndicator* indicator;
 static unsigned int timeout_id;
 static signed long start_time = 0;
-static unsigned int timeout_seconds = 120; // TODO must be configurable
+static unsigned int timeout_seconds = 120;
 
-static void start (GtkAction* action);
-static void reset ();
+static void start();
+static void reset();
+
+extern const gchar *menu_glade;
+
+void on_menuitem_start_activate() {
+    start();
+}
+
+void on_menuitem_reset_activate() {
+    reset();
+}
 
 static void show_notification() {
-    NotifyNotification* notification;
-    gboolean success;
-    GError* error = NULL;
+    NotifyNotification *notification;
+    GError *error = NULL;
 
     notify_init ("countdown-indicator");
     notification = notify_notification_new("Countdown",
                                            "It's time!",
                                            "countdown-status");
 
-    success = notify_notification_show(notification, &error);
+    notify_notification_show(notification, &error);
     notify_uninit ();
 }
 
@@ -65,7 +74,7 @@ static gboolean time_handler(gpointer data) {
     return TRUE;
 }
 
-static void start(GtkAction* action)
+static void start()
 {
     reset();
     start_time = g_get_monotonic_time();
@@ -78,59 +87,29 @@ static void reset()
         g_source_remove(timeout_id);
         timeout_id = 0;
     }
+
     app_indicator_set_icon(indicator, "countdown");
 }
 
-static GtkActionEntry entries[] = {
-    { "Start", "start", "_Start", "", "Start", G_CALLBACK (start) },
-    { "Reset", "reset", "_Reset", "", "Reset", G_CALLBACK (reset) },
-    { "Quit", "application-exit", "_Quit", "", "Quit", G_CALLBACK (gtk_main_quit) },
-};
-static guint n_entries = G_N_ELEMENTS (entries);
+int main(int argc, char *argv[]) {
+    GtkBuilder *builder;
+    GtkWidget *indicator_menu;
 
-static const gchar *ui_info =
-"<ui>"
-"  <popup name='IndicatorPopup'>"
-"    <menuitem action='Start' />"
-"    <menuitem action='Reset' />"
-"    <menuitem action='Quit' />"
-"  </popup>"
-"</ui>";
+    gtk_init(&argc, &argv);
 
-int main(int argc, char** argv) {
+    // Indicator menu
+    builder = gtk_builder_new_from_string(menu_glade, -1);
+    indicator_menu = GTK_WIDGET(gtk_builder_get_object(builder, "indicator_menu"));
+    gtk_builder_connect_signals(builder, NULL);
 
-    GtkWidget* indicator_menu;
-    GtkActionGroup* action_group;
-    GtkUIManager* uim;
-    GError* error = NULL;
-
-    gtk_init (&argc, &argv);
-
-    action_group = gtk_action_group_new ("AppActions");
-    gtk_action_group_add_actions (action_group,
-                                  entries, n_entries, NULL);
-
-    uim = gtk_ui_manager_new ();
-    gtk_ui_manager_insert_action_group (uim, action_group, 0);
-
-    if (!gtk_ui_manager_add_ui_from_string (uim, ui_info, -1, &error)) {
-        g_message ("Failed to build menus: %s\n", error->message);
-        g_error_free (error);
-        error = NULL;
-    }
-
-    indicator = app_indicator_new("countdown-indicator",
-                                  "countdown",
+    // Indicator
+    indicator = app_indicator_new("countdown-indicator", "countdown",
                                   APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
+    app_indicator_set_attention_icon(indicator, "countdown-indicator");
+    app_indicator_set_menu(indicator, GTK_MENU (indicator_menu));
 
-    indicator_menu = gtk_ui_manager_get_widget (uim, "/ui/IndicatorPopup");
-
-    app_indicator_set_status (indicator, APP_INDICATOR_STATUS_ACTIVE);
-    // app_indicator_set_attention_icon (indicator, "countdown-indicator");
-
-    app_indicator_set_menu (indicator, GTK_MENU (indicator_menu));
-
-    gtk_main ();
+    gtk_main();
 
     return 0;
 }
