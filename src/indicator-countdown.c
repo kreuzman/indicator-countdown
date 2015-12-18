@@ -37,11 +37,13 @@ void on_menuitem_start_activate() {
     start();
 }
 
-void on_menuitem_reset_activate() {
+void on_menuitem_reset_activate()
+{
     reset();
 }
 
-static void show_notification() {
+static void show_notification()
+{
     NotifyNotification *notification;
     GError *error = NULL;
 
@@ -54,7 +56,8 @@ static void show_notification() {
     notify_uninit ();
 }
 
-static gboolean time_handler(gpointer data) {
+static gboolean time_handler(gpointer data)
+{
     signed long actual = g_get_monotonic_time();
     int seconds = timeout_seconds * 1000 * 1000;
     if (actual - start_time > seconds) {
@@ -94,13 +97,15 @@ static void reset()
 int main(int argc, char *argv[]) {
     GtkBuilder *builder;
     GtkWidget *indicator_menu;
+    GtkMenuItem *menuitem_time;
 
     gtk_init(&argc, &argv);
 
     // Indicator menu
     builder = gtk_builder_new_from_string(menu_glade, -1);
-    indicator_menu = GTK_WIDGET(gtk_builder_get_object(builder, "indicator_menu"));
     gtk_builder_connect_signals(builder, NULL);
+    indicator_menu = GTK_WIDGET (gtk_builder_get_object(builder, "indicator_menu"));
+    menuitem_time = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_time"));
 
     // Indicator
     indicator = app_indicator_new("countdown-indicator", "countdown",
@@ -108,6 +113,12 @@ int main(int argc, char *argv[]) {
     app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
     app_indicator_set_attention_icon(indicator, "countdown-indicator");
     app_indicator_set_menu(indicator, GTK_MENU (indicator_menu));
+
+    int sec = timeout_seconds % 60;
+    int minutes = (timeout_seconds / 60) % 60;
+    char label[6];
+    sprintf(label, "%02d:%02d", minutes, sec);
+    gtk_menu_item_set_label(menuitem_time, label);
 
     gtk_main();
 
