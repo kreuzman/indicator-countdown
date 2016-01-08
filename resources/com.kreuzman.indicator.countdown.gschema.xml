@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    MUST be installed. Copy file to /usr/share/glib-2.0/schemas and then
+    with run glib-compile-schemas on /usr/share/glib-2.0/schemas directory.
+-->
+<schemalist>
+    <schema id="com.kreuzman.indicator.countdown"
+            path="/com/kreuzman/indicator/countdown/">
+
+        <key name="autostart" type="b">
+             <default>true</default>
+             <summary>Automatically start on session startup</summary>
+         </key>
+
+        <key name="timeout" type="i">
+            <range min="5000" max="86400000"/>
+            <default>120000</default>
+            <summary>Timeout in miliseconds.</summary>
+            <description>
+                Actually selected timeout that will be used when you start
+                countdown.
+            </description>
+        </key>
+
+    </schema>
+</schemalist>
