@@ -4,12 +4,12 @@ SRC_PATH = ./src
 BIN_PATH = ./bin
 
 all:
-	rm -f ${BIN_PATH}/main && gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/main && ${BIN_PATH}/main
+	rm -f ${BIN_PATH}/main && gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator_countdown.c ${LIBS} -o ${BIN_PATH}/main && ${BIN_PATH}/main
 clean:
 	rm -f ${BIN_PATH}/main
 build:
-	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/main
+	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator_countdown.c ${LIBS} -o ${BIN_PATH}/main
 run:
 	${BIN_PATH}/main
 publish:
-	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator-countdown.c ${LIBS} -o ${BIN_PATH}/indicator-countdown
+	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator_countdown.c ${LIBS} -o ${BIN_PATH}/indicator-countdown

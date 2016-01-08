@@ -20,13 +20,14 @@
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
 #include <libnotify/notify.h>
+#include <gio/gio.h>
 
 static unsigned int const COUNTDOWN_PICS_COUNT = 60;
 
 static AppIndicator* indicator;
 static unsigned int timeout_id;
 static signed long start_time = 0;
-static unsigned int timeout_seconds = 120;
+static unsigned int timeout = 120;
 
 static void start();
 static void reset();
@@ -47,7 +48,7 @@ static void show_notification()
     NotifyNotification *notification;
     GError *error = NULL;
 
-    notify_init ("countdown-indicator");
+    notify_init("countdown-indicator");
     notification = notify_notification_new("Countdown",
                                            "It's time!",
                                            "countdown-status");
@@ -59,7 +60,7 @@ static void show_notification()
 static gboolean time_handler(gpointer data)
 {
     signed long actual = g_get_monotonic_time();
-    int seconds = timeout_seconds * 1000 * 1000;
+    int seconds = timeout * 1000 * 1000;
     if (actual - start_time > seconds) {
         show_notification();
         reset();
@@ -98,7 +99,8 @@ int main(int argc, char *argv[]) {
     GtkBuilder *builder;
     GtkWidget *indicator_menu;
     GtkMenuItem *menuitem_time;
-
+    GSettings* gsettings;
+    
     gtk_init(&argc, &argv);
 
     // Indicator menu
@@ -113,9 +115,12 @@ int main(int argc, char *argv[]) {
     app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
     app_indicator_set_attention_icon(indicator, "countdown-indicator");
     app_indicator_set_menu(indicator, GTK_MENU (indicator_menu));
-
-    int sec = timeout_seconds % 60;
-    int minutes = (timeout_seconds / 60) % 60;
+    
+    gsettings = g_settings_new("com.kreuzman.indicator.countdown");
+    timeout = g_settings_get_int(gsettings, "timeout");
+    
+    int sec = (timeout / 1000) % 60;
+    int minutes = (timeout / 1000 / 60) % 60;
     char label[6];
     sprintf(label, "%02d:%02d", minutes, sec);
     gtk_menu_item_set_label(menuitem_time, label);
