@@ -20,18 +20,20 @@
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
 #include <libnotify/notify.h>
-#include <gio/gio.h>
 
-static unsigned int const COUNTDOWN_PICS_COUNT = 60;
+static const unsigned int COUNTDOWN_PICS_COUNT = 60;
 
 static AppIndicator* indicator;
+static GSettings *gsettings;
+static GtkMenuItem *menuitem_timeout;
 static unsigned int timeout_id;
 static signed long start_time = 0;
-static unsigned int timeout = 120;
+static unsigned int timeout;
 
 static void start();
 static void reset();
 
+extern const gchar *menu_glade;
 extern const gchar *menu_glade;
 
 void on_menuitem_start_activate() {
@@ -60,7 +62,7 @@ static void show_notification()
 static gboolean time_handler(gpointer data)
 {
     signed long actual = g_get_monotonic_time();
-    int seconds = timeout * 1000 * 1000;
+    int seconds = timeout * 1000;
     if (actual - start_time > seconds) {
         show_notification();
         reset();
@@ -95,35 +97,42 @@ static void reset()
     app_indicator_set_icon(indicator, "countdown");
 }
 
+static void update_timeout_label () {
+    int timeout = timeout = g_settings_get_int(gsettings, "timeout") / 1000;
+    int seconds = timeout % 60;
+    int minutes = (timeout / 60) % 60;
+    int hours = (minutes / 60 / 60) % 60;
+    
+    char time_str[9];
+    sprintf(time_str, "%02d:%02d:%02d", hours, minutes, seconds);
+
+    gtk_menu_item_set_label(menuitem_timeout, time_str);
+}
+
 int main(int argc, char *argv[]) {
     GtkBuilder *builder;
     GtkWidget *indicator_menu;
-    GtkMenuItem *menuitem_time;
-    GSettings* gsettings;
-    
+
     gtk_init(&argc, &argv);
+
+    gsettings = g_settings_new("com.kreuzman.indicator.countdown");
+    timeout = g_settings_get_int(gsettings, "timeout");
 
     // Indicator menu
     builder = gtk_builder_new_from_string(menu_glade, -1);
     gtk_builder_connect_signals(builder, NULL);
     indicator_menu = GTK_WIDGET (gtk_builder_get_object(builder, "indicator_menu"));
-    menuitem_time = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_time"));
-
+    menuitem_timeout = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_timeout"));
+    
+    update_timeout_label();
+    
     // Indicator
     indicator = app_indicator_new("countdown-indicator", "countdown",
                                   APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
     app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
     app_indicator_set_attention_icon(indicator, "countdown-indicator");
     app_indicator_set_menu(indicator, GTK_MENU (indicator_menu));
-    
-    gsettings = g_settings_new("com.kreuzman.indicator.countdown");
-    timeout = g_settings_get_int(gsettings, "timeout");
-    
-    int sec = (timeout / 1000) % 60;
-    int minutes = (timeout / 1000 / 60) % 60;
-    char label[6];
-    sprintf(label, "%02d:%02d", minutes, sec);
-    gtk_menu_item_set_label(menuitem_time, label);
+
 
     gtk_main();
 

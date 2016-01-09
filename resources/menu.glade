@@ -32,7 +32,13 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem_time">
+              <object class="GtkSeparatorMenuItem" id="menuitem_separator1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem_timeout">
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
@@ -42,7 +48,7 @@
               </object>
             </child>
             <child>
-              <object class="GtkSeparatorMenuItem" id="menuitem_separator">
+              <object class="GtkSeparatorMenuItem" id="menuitem_separator2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
