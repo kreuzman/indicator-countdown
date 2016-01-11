@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Michal Kreuzman
+ * Copyright (C) 2016 Michal Kreuzman
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ static const unsigned int COUNTDOWN_PICS_COUNT = 60;
 static AppIndicator* indicator;
 static GSettings *gsettings;
 static GtkMenuItem *menuitem_timeout;
+static GtkDialog *about_dialog;
 static unsigned int timeout_id;
 static signed long start_time = 0;
 static unsigned int timeout;
@@ -43,6 +44,12 @@ void on_menuitem_start_activate() {
 void on_menuitem_reset_activate()
 {
     reset();
+}
+
+void on_menuitem_about_activate()
+{
+    gtk_dialog_run(about_dialog);
+    gtk_widget_hide(GTK_WIDGET (about_dialog));
 }
 
 static void show_notification()
@@ -102,7 +109,7 @@ static void update_timeout_label () {
     int seconds = timeout % 60;
     int minutes = (timeout / 60) % 60;
     int hours = (minutes / 60 / 60) % 60;
-    
+
     char time_str[9];
     sprintf(time_str, "%02d:%02d:%02d", hours, minutes, seconds);
 
@@ -123,16 +130,18 @@ int main(int argc, char *argv[]) {
     gtk_builder_connect_signals(builder, NULL);
     indicator_menu = GTK_WIDGET (gtk_builder_get_object(builder, "indicator_menu"));
     menuitem_timeout = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_timeout"));
-    
+
     update_timeout_label();
-    
+
+    // About dialog
+    about_dialog = GTK_DIALOG (gtk_builder_get_object(builder, "aboutdialog"));
+
     // Indicator
     indicator = app_indicator_new("countdown-indicator", "countdown",
                                   APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
     app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
     app_indicator_set_attention_icon(indicator, "countdown-indicator");
     app_indicator_set_menu(indicator, GTK_MENU (indicator_menu));
-
 
     gtk_main();
 
