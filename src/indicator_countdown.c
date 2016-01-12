@@ -25,7 +25,7 @@ static const unsigned int COUNTDOWN_PICS_COUNT = 60;
 
 static AppIndicator* indicator;
 static GSettings *gsettings;
-static GtkMenuItem *menuitem_timeout;
+static GtkMenuItem *menuitem_start;
 static GtkDialog *about_dialog;
 static unsigned int timeout_id;
 static signed long start_time = 0;
@@ -113,7 +113,7 @@ static void update_timeout_label () {
     char time_str[9];
     sprintf(time_str, "%02d:%02d:%02d", hours, minutes, seconds);
 
-    gtk_menu_item_set_label(menuitem_timeout, time_str);
+    gtk_menu_item_set_label(menuitem_start, time_str);
 }
 
 int main(int argc, char *argv[]) {
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
     builder = gtk_builder_new_from_string(menu_glade, -1);
     gtk_builder_connect_signals(builder, NULL);
     indicator_menu = GTK_WIDGET (gtk_builder_get_object(builder, "indicator_menu"));
-    menuitem_timeout = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_timeout"));
+    menuitem_start = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_start"));
 
     update_timeout_label();
 
