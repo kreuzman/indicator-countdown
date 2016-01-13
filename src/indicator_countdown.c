@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
     update_timeout_label();
 
     // About dialog
-    about_dialog = GTK_DIALOG (gtk_builder_get_object(builder, "aboutdialog"));
+    about_dialog = GTK_DIALOG (gtk_builder_get_object(builder, "about_dialog"));
 
     // Indicator
     indicator = app_indicator_new("countdown-indicator", "countdown",
