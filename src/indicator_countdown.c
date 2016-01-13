@@ -117,6 +117,7 @@ static void update_timeout_label(unsigned int actual_timeout) {
     sprintf(time_str, "%02d:%02d:%02d", hours, minutes, seconds);
 
     gtk_menu_item_set_label(menuitem_start, time_str);
+    app_indicator_set_label(indicator, time_str, NULL);
 }
 
 int main(int argc, char *argv[]) {
@@ -134,8 +135,6 @@ int main(int argc, char *argv[]) {
     indicator_menu = GTK_WIDGET (gtk_builder_get_object(builder, "indicator_menu"));
     menuitem_start = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_start"));
 
-    update_timeout_label(timeout);
-
     // About dialog
     about_dialog = GTK_DIALOG (gtk_builder_get_object(builder, "about_dialog"));
 
@@ -146,6 +145,8 @@ int main(int argc, char *argv[]) {
     app_indicator_set_attention_icon(indicator, "countdown-indicator");
     app_indicator_set_menu(indicator, GTK_MENU (indicator_menu));
 
+    update_timeout_label(timeout);
+    
     gtk_main();
 
     return 0;
