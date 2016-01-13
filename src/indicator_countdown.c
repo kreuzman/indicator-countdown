@@ -33,6 +33,7 @@ static unsigned int timeout;
 
 static void start();
 static void reset();
+static void update_timeout_label(unsigned int);
 
 extern const gchar *menu_glade;
 extern const gchar *menu_glade;
@@ -77,6 +78,7 @@ static gboolean time_handler(gpointer data)
         return FALSE;
     }
 
+    update_timeout_label(timeout - ((actual - start_time) / 1000));
     double ratio = (actual - start_time) / (double) seconds;
     int pic = (COUNTDOWN_PICS_COUNT * ratio) + 1;
 
@@ -101,14 +103,15 @@ static void reset()
         timeout_id = 0;
     }
 
+    update_timeout_label(timeout);
     app_indicator_set_icon(indicator, "countdown");
 }
 
-static void update_timeout_label () {
-    int timeout = timeout = g_settings_get_int(gsettings, "timeout") / 1000;
-    int seconds = timeout % 60;
-    int minutes = (timeout / 60) % 60;
-    int hours = (minutes / 60 / 60) % 60;
+static void update_timeout_label(unsigned int actual_timeout) {
+    actual_timeout /= 1000;
+    int seconds = actual_timeout % 60;
+    int minutes = (actual_timeout / 60) % 60;
+    int hours = (actual_timeout / 60 / 60) % 60;
 
     char time_str[9];
     sprintf(time_str, "%02d:%02d:%02d", hours, minutes, seconds);
@@ -131,7 +134,7 @@ int main(int argc, char *argv[]) {
     indicator_menu = GTK_WIDGET (gtk_builder_get_object(builder, "indicator_menu"));
     menuitem_start = GTK_MENU_ITEM (gtk_builder_get_object(builder, "menuitem_start"));
 
-    update_timeout_label();
+    update_timeout_label(timeout);
 
     // About dialog
     about_dialog = GTK_DIALOG (gtk_builder_get_object(builder, "about_dialog"));
