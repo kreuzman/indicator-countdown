@@ -117,7 +117,12 @@ static void update_timeout_label(unsigned int actual_timeout) {
     sprintf(time_str, "%02d:%02d:%02d", hours, minutes, seconds);
 
     gtk_menu_item_set_label(menuitem_start, time_str);
-    app_indicator_set_label(indicator, time_str, NULL);
+    
+    if (timeout_id > 0) {
+        app_indicator_set_label(indicator, time_str, NULL);
+    } else {
+        app_indicator_set_label(indicator, NULL, NULL);
+    }
 }
 
 int main(int argc, char *argv[]) {
