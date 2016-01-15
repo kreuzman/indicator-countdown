@@ -11,5 +11,7 @@ build:
 	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator_countdown.c ${LIBS} -o ${BIN_PATH}/main
 run:
 	${BIN_PATH}/main
+run-valgrind:
+	valgrind ${BIN_PATH}/main --track-origins=yes
 publish:
 	gcc ${CFLAGS} ${SRC_PATH}/menu_glade.c ${SRC_PATH}/indicator_countdown.c ${LIBS} -o ${BIN_PATH}/indicator-countdown
