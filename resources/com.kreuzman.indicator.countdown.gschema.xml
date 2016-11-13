@@ -13,9 +13,9 @@
          </key>
 
         <key name="timeout" type="i">
-            <range min="5000" max="86400000"/>
-            <default>120000</default>
-            <summary>Timeout in miliseconds.</summary>
+            <range min="5" max="86400"/>
+            <default>120</default>
+            <summary>Timeout in seconds.</summary>
             <description>
                 Actually selected timeout that will be used when you start
                 countdown.
