@@ -29,9 +29,9 @@ Countdown *countdown_new_from_seconds(signed long duration);
 
 void countdown_destroy(Countdown *countdown);
 
-void countdown_set_tick_callback(Countdown *countdown, void (*tick_callback)());
+void countdown_tick_callback_add(Countdown *countdown, void (*tick_callback)());
 
-void countdown_set_finished_callback(Countdown *countdown, void (*finished_callback)());
+void countdown_finished_callback_add(Countdown *countdown, void (*finished_callback)());
 
 void countdown_start(Countdown *countdown);
 

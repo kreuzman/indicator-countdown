@@ -29,12 +29,19 @@
 static const char *ICON_NAME = "countdown";
 
 static GtkMenu *menu_init(Indicator *indicator_countdown);
+
 static AppIndicator *app_indicator_init(GtkMenu *menu);
+
 static void start_countdown(GtkButton *button, gpointer data);
+
 static void stop_countdown(GtkButton *button, gpointer data);
+
 static void show_preferences_dialog(GtkButton *button, gpointer data);
+
 static void show_about_dialog(GtkButton *button, gpointer data);
+
 static void show_notification();
+
 static const char *time_as_string(signed long time);
 
 struct Indicator {
@@ -43,8 +50,9 @@ struct Indicator {
     GtkMenu *menu;
     AboutDialog *about_dialog;
 
-    void (*on_start_countdown)();
-    void (*on_stop_countdown)();
+    void (*start_button_press_callback)();
+
+    void (*stop_pressed_callback)();
 };
 
 Indicator *indicator_new(signed long timeout) {
@@ -54,8 +62,8 @@ Indicator *indicator_new(signed long timeout) {
     indicator->menu = menu_init(indicator);
     indicator->app_indicator = app_indicator_init(indicator->menu);
     indicator->about_dialog = NULL;
-    indicator->on_start_countdown = NULL;
-    indicator->on_stop_countdown = NULL;
+    indicator->start_button_press_callback = NULL;
+    indicator->stop_pressed_callback = NULL;
 
     return indicator;
 }
@@ -73,12 +81,12 @@ void indicator_finish_countdown(Indicator *indicator) {
     app_indicator_set_icon(indicator->app_indicator, ICON_NAME);
 }
 
-void indicator_set_on_start(Indicator *indicator, void (*on_start)()) {
-    indicator->on_start_countdown = on_start;
+void indicator_start_pressed_callback_add(Indicator *indicator, void (*start_button_press_callback)()) {
+    indicator->start_button_press_callback = start_button_press_callback;
 }
 
-void indicator_set_on_stop(Indicator *indicator, void (*on_stop)()) {
-    indicator->on_stop_countdown = on_stop;
+void indicator_stop_pressed_callback(Indicator *indicator, void (*stop_pressed_callback)()) {
+    indicator->stop_pressed_callback = stop_pressed_callback;
 }
 
 static GtkMenu *menu_init(Indicator *indicator_countdown) {
@@ -123,13 +131,13 @@ static AppIndicator *app_indicator_init(GtkMenu *menu) {
 static void start_countdown(GtkButton *button, gpointer data) {
     Indicator *indicator = data;
     app_indicator_set_icon(indicator->app_indicator, "countdown-00");
-    indicator->on_start_countdown();
+    indicator->start_button_press_callback();
 }
 
 static void stop_countdown(GtkButton *button, gpointer data) {
     Indicator *indicator = data;
     app_indicator_set_icon(indicator->app_indicator, ICON_NAME);
-    indicator->on_stop_countdown();
+    indicator->stop_pressed_callback();
 }
 
 static void show_preferences_dialog(GtkButton *button, gpointer data) {

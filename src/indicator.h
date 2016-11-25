@@ -26,9 +26,9 @@ typedef struct Indicator Indicator;
 
 Indicator *indicator_new(signed long timeout);
 
-void indicator_set_on_start(Indicator *indicator, void (*on_start)());
+void indicator_start_pressed_callback_add(Indicator *indicator, void (*on_start)());
 
-void indicator_set_on_stop(Indicator *indicator, void (*on_stop)());
+void indicator_stop_pressed_callback(Indicator *indicator, void (*on_stop)());
 
 void indicator_update_elapsed_time(Indicator *indicator, unsigned int percent_elapsed);
 

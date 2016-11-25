@@ -51,12 +51,12 @@ int main(int argc, char *argv[]) {
     signed long timout = g_settings_get_int(settings, "timeout");
 
     countdown = countdown_new_from_seconds(timout);
-    countdown_set_tick_callback(countdown, on_countdown_tick);
-    countdown_set_finished_callback(countdown, on_countdown_finish);
+    countdown_tick_callback_add(countdown, on_countdown_tick);
+    countdown_finished_callback_add(countdown, on_countdown_finish);
 
     indicator_countdown = indicator_new(timout);
-    indicator_set_on_start(indicator_countdown, on_countdown_start);
-    indicator_set_on_stop(indicator_countdown, on_countdown_stop);
+    indicator_start_pressed_callback_add(indicator_countdown, on_countdown_start);
+    indicator_stop_pressed_callback(indicator_countdown, on_countdown_stop);
 
     gtk_main();
 
