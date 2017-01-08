@@ -90,6 +90,14 @@ AboutDialog *about_dialog_new() {
     return about_dialog;
 }
 
+void about_dialog_destroy(AboutDialog *about_dialog) {
+    if (about_dialog->dialog != NULL) {
+        gtk_widget_destroy(GTK_WIDGET (about_dialog->dialog));
+    }
+
+    free(about_dialog);
+}
+
 void about_dialog_show(AboutDialog *about_dialog) {
     if (about_dialog->dialog != NULL) {
         gtk_window_present(GTK_WINDOW (about_dialog->dialog));
@@ -101,5 +109,13 @@ void about_dialog_show(AboutDialog *about_dialog) {
     g_object_unref(G_OBJECT (builder));
 
     gtk_dialog_run(about_dialog->dialog);
+
     gtk_widget_destroy(GTK_WIDGET (about_dialog->dialog));
+    about_dialog->dialog = NULL;
+}
+
+void about_dialog_close(AboutDialog *about_dialog) {
+    if (about_dialog->dialog != NULL) {
+        gtk_dialog_response(about_dialog->dialog, GTK_RESPONSE_CLOSE);
+    }
 }

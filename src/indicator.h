@@ -26,6 +26,8 @@ typedef struct Indicator Indicator;
 
 Indicator *indicator_new(signed long timeout);
 
+void indicator_destroy(Indicator *indicator);
+
 void indicator_start_pressed_callback_add(Indicator *indicator, void (*on_start)());
 
 void indicator_stop_pressed_callback(Indicator *indicator, void (*on_stop)());

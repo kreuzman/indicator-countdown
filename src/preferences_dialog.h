@@ -17,17 +17,17 @@
  *      Michal Kreuzman <michal.kreuzman@gmail.com>
  */
 
-#ifndef INDICATOR_COUNTDOWN_ABOUT_DIALOG_H
-#define INDICATOR_COUNTDOWN_ABOUT_DIALOG_H
+#ifndef INDICATOR_COUNTDOWN_PREFERENCES_DIALOG_H
+#define INDICATOR_COUNTDOWN_PREFERENCES_DIALOG_H
 
-typedef struct AboutDialog AboutDialog;
+typedef struct PreferencesDialog PreferencesDialog;
 
-AboutDialog *about_dialog_new();
+PreferencesDialog *preferences_dialog_new();
 
-void about_dialog_destroy(AboutDialog *about_dialog);
+void preferences_dialog_destroy(PreferencesDialog *preferences_dialog);
 
-void about_dialog_show(AboutDialog *about_dialog);
+void preferences_dialog_show(PreferencesDialog *preferences_dialog);
 
-void about_dialog_close(AboutDialog *about_dialog);
+void preferences_dialog_close(PreferencesDialog *preferences_dialog);
 
-#endif //INDICATOR_COUNTDOWN_ABOUT_DIALOG_H
+#endif //INDICATOR_COUNTDOWN_PREFERENCES_DIALOG_H

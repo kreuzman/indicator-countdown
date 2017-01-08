@@ -21,10 +21,10 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <libappindicator/app-indicator.h>
-#include <libnotify/notify.h>
 
 #include "indicator.h"
 #include "about_dialog.h"
+#include "preferences_dialog.h"
 
 static const char *ICON_NAME = "countdown";
 
@@ -40,7 +40,7 @@ static void show_preferences_dialog(GtkButton *button, gpointer data);
 
 static void show_about_dialog(GtkButton *button, gpointer data);
 
-static void show_notification();
+static void quit(GtkButton *button, gpointer data);
 
 static const char *time_as_string(signed long time);
 
@@ -48,6 +48,7 @@ struct Indicator {
     signed long timeout;
     AppIndicator *app_indicator;
     GtkMenu *menu;
+    PreferencesDialog *preferences_dialog;
     AboutDialog *about_dialog;
 
     void (*start_button_press_callback)();
@@ -59,13 +60,31 @@ Indicator *indicator_new(signed long timeout) {
     struct Indicator *indicator = (struct Indicator *) malloc(sizeof(struct Indicator));
     indicator->timeout = timeout;
 
+    indicator->preferences_dialog = NULL;
+    indicator->about_dialog = NULL;
+
     indicator->menu = menu_init(indicator);
     indicator->app_indicator = app_indicator_init(indicator->menu);
-    indicator->about_dialog = NULL;
+
     indicator->start_button_press_callback = NULL;
     indicator->stop_pressed_callback = NULL;
 
     return indicator;
+}
+
+void indicator_destroy(Indicator *indicator) {
+    if (indicator->about_dialog != NULL) {
+        about_dialog_destroy(indicator->about_dialog);
+    }
+
+    if (indicator->preferences_dialog != NULL) {
+        preferences_dialog_destroy(indicator->preferences_dialog);
+    }
+
+    gtk_widget_destroy(GTK_WIDGET (indicator->menu));
+    g_object_unref(G_OBJECT (indicator->app_indicator));
+
+    free(indicator);
 }
 
 void indicator_update_elapsed_time(Indicator *indicator, unsigned int percent_elapsed) {
@@ -77,7 +96,6 @@ void indicator_update_elapsed_time(Indicator *indicator, unsigned int percent_el
 }
 
 void indicator_finish_countdown(Indicator *indicator) {
-    show_notification();
     app_indicator_set_icon(indicator->app_indicator, ICON_NAME);
 }
 
@@ -89,6 +107,9 @@ void indicator_stop_pressed_callback(Indicator *indicator, void (*stop_pressed_c
     indicator->stop_pressed_callback = stop_pressed_callback;
 }
 
+/*
+ * UI functions
+ */
 static GtkMenu *menu_init(Indicator *indicator_countdown) {
     const char *start_label = time_as_string(indicator_countdown->timeout);
 
@@ -109,7 +130,7 @@ static GtkMenu *menu_init(Indicator *indicator_countdown) {
     g_signal_connect(stop_menu_item, "activate", G_CALLBACK(stop_countdown), indicator_countdown);
     g_signal_connect(preferences_menu_item, "activate", G_CALLBACK(show_preferences_dialog), indicator_countdown);
     g_signal_connect(about_menu_item, "activate", G_CALLBACK(show_about_dialog), indicator_countdown);
-    g_signal_connect(quit_menu_item, "activate", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(quit_menu_item, "activate", G_CALLBACK(quit), indicator_countdown);
 
     gtk_widget_show_all(GTK_WIDGET (indicator_menu));
 
@@ -128,6 +149,9 @@ static AppIndicator *app_indicator_init(GtkMenu *menu) {
     return indicator;
 }
 
+/*
+ * Menu callbacks
+ */
 static void start_countdown(GtkButton *button, gpointer data) {
     Indicator *indicator = data;
     app_indicator_set_icon(indicator->app_indicator, "countdown-00");
@@ -141,6 +165,12 @@ static void stop_countdown(GtkButton *button, gpointer data) {
 }
 
 static void show_preferences_dialog(GtkButton *button, gpointer data) {
+    Indicator *indicator = data;
+    if (indicator->preferences_dialog == NULL) {
+        indicator->preferences_dialog = preferences_dialog_new();
+    }
+
+    preferences_dialog_show(indicator->preferences_dialog);
 }
 
 static void show_about_dialog(GtkButton *button, gpointer data) {
@@ -152,16 +182,23 @@ static void show_about_dialog(GtkButton *button, gpointer data) {
     about_dialog_show(indicator->about_dialog);
 }
 
-static void show_notification() {
-    notify_init("countdown-indicator");
+static void quit(GtkButton *button, gpointer data) {
+    Indicator *indicator = data;
 
-    GError *error = NULL;
-    NotifyNotification *notification = notify_notification_new("Countdown", "It's time!", "countdown-status");
-    notify_notification_show(notification, &error);
+    if (indicator->preferences_dialog != NULL) {
+        preferences_dialog_close(indicator->preferences_dialog);
+    }
 
-    notify_uninit();
+    if (indicator->about_dialog != NULL) {
+        about_dialog_close(indicator->about_dialog);
+    }
+
+    gtk_main_quit();
 }
 
+/*
+ * Util functions
+ */
 static const char *time_as_string(signed long time) {
     int seconds = (int) (time % 60);
     int minutes = (int) ((time / 60) % 60);

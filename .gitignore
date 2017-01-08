@@ -25,5 +25,4 @@
 *.dSYM/
 
 bin/
-resources/menu.glade~
-resources/#menu.glade#
+cmake-build-debug/

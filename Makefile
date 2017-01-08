@@ -5,7 +5,7 @@ BIN_PATH = ./bin
 RESOURCES_PATH = ./resources
 ICONS_PATH = ./icons
 
-SOURCES = ${SRC_PATH}/countdown.c ${SRC_PATH}/about_dialog.c ${SRC_PATH}/indicator.c ${SRC_PATH}/main.c
+SOURCES = ${SRC_PATH}/countdown.c ${SRC_PATH}/about_dialog.c ${SRC_PATH}/indicator.c ${SRC_PATH}/main.c ${SRC_PATH}/preferences_dialog.c
 
 all:
 	rm -f ${BIN_PATH}/main && gcc ${CFLAGS} ${SOURCES} ${LIBS} -o ${BIN_PATH}/main && ${BIN_PATH}/main

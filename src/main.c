@@ -18,6 +18,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <libnotify/notify.h>
 
 #include "countdown.h"
 #include "indicator.h"
@@ -26,6 +27,8 @@ static const char *GSETTINS_SCHEMA_ID = "com.kreuzman.indicator.countdown";
 static GSettings *settings;
 static Indicator *indicator_countdown;
 static Countdown *countdown;
+
+static void show_notification();
 
 static void on_countdown_start() {
     countdown_start(countdown);
@@ -40,7 +43,18 @@ static void on_countdown_tick() {
 }
 
 static void on_countdown_finish() {
+    show_notification();
     indicator_finish_countdown(indicator_countdown);
+}
+
+static void show_notification() {
+    notify_init("countdown-indicator");
+
+    GError *error = NULL;
+    NotifyNotification *notification = notify_notification_new("Countdown", "It's time!", "countdown-status");
+    notify_notification_show(notification, &error);
+
+    notify_uninit();
 }
 
 int main(int argc, char *argv[]) {
@@ -61,6 +75,7 @@ int main(int argc, char *argv[]) {
     gtk_main();
 
     countdown_destroy(countdown);
+    indicator_destroy(indicator_countdown);
 
     return 0;
 }
