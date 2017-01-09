@@ -4,23 +4,45 @@
     with run glib-compile-schemas on /usr/share/glib-2.0/schemas directory.
 -->
 <schemalist>
-    <schema id="com.kreuzman.indicator.countdown"
-            path="/com/kreuzman/indicator/countdown/">
 
+    <schema id="com.kreuzman.indicator.countdown" path="/com/kreuzman/indicator/countdown/" gettext-domain="indicator-countdown">
+        <child schema="com.kreuzman.indicator.countdown.general" name="general"/>
+        <child schema="com.kreuzman.indicator.countdown.presets" name="presets"/>
+    </schema>
+
+    <schema id="com.kreuzman.indicator.countdown.general" path="/com/kreuzman/indicator/countdown/general/" gettext-domain="indicator-countdown">
         <key name="autostart" type="b">
-             <default>true</default>
-             <summary>Automatically start on session startup</summary>
-         </key>
+            <default>true</default>
+            <summary>Automatically start on session startup</summary>
+        </key>
 
+        <key name="appindicator-countdown-visible" type="b">
+            <default>false</default>
+            <summary>Show countdown in application notification area</summary>
+        </key>
+
+        <key name="notifications-visible" type="b">
+            <default>true</default>
+            <summary>Show system notifications</summary>
+        </key>
+    </schema>
+
+    <schema id="com.kreuzman.indicator.countdown.presets" path="/com/kreuzman/indicator/countdown/presets/" gettext-domain="indicator-countdown">
+        <child schema="com.kreuzman.indicator.countdown.presets.preset1" name="preset1"/>
+    </schema>
+
+    <schema id="com.kreuzman.indicator.countdown.presets.preset1" path="/com/kreuzman/indicator/countdown/presets/preset1/" gettext-domain="indicator-countdown">
         <key name="timeout" type="i">
             <range min="5" max="86400"/>
             <default>120</default>
             <summary>Timeout in seconds.</summary>
-            <description>
-                Actually selected timeout that will be used when you start
-                countdown.
-            </description>
+            <description>Actually selected timeout that will be used when you start countdown.</description>
         </key>
 
+        <key name="notification-message" type="s">
+            <default>"It's time!"</default>
+            <description>Message in system notification after countdown finishes</description>
+        </key>
     </schema>
+
 </schemalist>

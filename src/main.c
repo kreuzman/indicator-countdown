@@ -23,7 +23,7 @@
 #include "countdown.h"
 #include "indicator.h"
 
-static const char *GSETTINS_SCHEMA_ID = "com.kreuzman.indicator.countdown";
+static const char *GSETTINS_SCHEMA_ID = "com.kreuzman.indicator.countdown.presets.preset1";
 static GSettings *settings;
 static Indicator *indicator_countdown;
 static Countdown *countdown;
