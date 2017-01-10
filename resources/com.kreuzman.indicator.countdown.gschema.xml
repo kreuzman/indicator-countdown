@@ -39,7 +39,12 @@
             <description>Actually selected timeout that will be used when you start countdown.</description>
         </key>
 
-        <key name="notification-message" type="s">
+        <key name="notification-summary" type="s">
+            <default>"Countdown"</default>
+            <description>Message heading in system notification after countdown finishes</description>
+        </key>
+
+        <key name="notification-body" type="s">
             <default>"It's time!"</default>
             <description>Message in system notification after countdown finishes</description>
         </key>

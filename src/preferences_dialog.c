@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Michal Kreuzman
+ * Copyright (C) 2017 Michal Kreuzman
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "preferences_dialog.h"
+#include "settings.h"
 
 static const gchar *PREFERENCES_DIALOG_GLADE =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -344,6 +345,8 @@ static const gchar *PREFERENCES_DIALOG_GLADE =
         "  </object>"
         "</interface>";
 
+extern const char *KEY_NOTIFICATON_BODY;
+
 struct PreferencesDialog {
     GtkDialog *dialog;
 };
@@ -368,10 +371,13 @@ void preferences_dialog_show(PreferencesDialog *preferences_dialog) {
     GtkBuilder *builder = gtk_builder_new_from_file("../resources/preferences_dialog_gui.glade");
     // GtkBuilder *builder = gtk_builder_new_from_string(PREFERENCES_DIALOG_GLADE, -1);
     preferences_dialog->dialog = GTK_DIALOG (gtk_builder_get_object(builder, "preferences_dialog"));
+
+    GtkTextView *textView = GTK_TEXT_VIEW (gtk_builder_get_object(builder, "notification_message"));
+    g_settings_bind(settings_countdown_preset1(), KEY_NOTIFICATON_BODY, gtk_text_view_get_buffer(textView), "text", G_SETTINGS_BIND_DEFAULT);
+
     g_object_unref(G_OBJECT (builder));
 
     gtk_dialog_run(preferences_dialog->dialog);
-
     gtk_widget_destroy(GTK_WIDGET (preferences_dialog->dialog));
     preferences_dialog->dialog = NULL;
 }

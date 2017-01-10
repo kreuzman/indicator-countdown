@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Michal Kreuzman
+ * Copyright (C) 2017 Michal Kreuzman
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,30 @@
 #include <gtk/gtk.h>
 #include <libnotify/notify.h>
 
+#include "settings.h"
 #include "countdown.h"
 #include "indicator.h"
 
-static const char *GSETTINS_SCHEMA_ID = "com.kreuzman.indicator.countdown.presets.preset1";
-static GSettings *settings;
+extern const char *KEY_TIMEOUT;
+extern const char *KEY_NOTIFICATON_SUMMARY;
+extern const char *KEY_NOTIFICATON_BODY;
+
 static Indicator *indicator_countdown;
 static Countdown *countdown;
 
-static void show_notification();
+static const char *APP_NAME = "countdown-indicator";
+static const char *NOTIFICATION_ICON = "countdown-status";
+
+static void show_notification() {
+    notify_init(APP_NAME);
+
+    char *summary = g_settings_get_string(settings_countdown_preset1(), KEY_NOTIFICATON_SUMMARY);
+    char *body = g_settings_get_string(settings_countdown_preset1(), KEY_NOTIFICATON_BODY);
+    NotifyNotification *notification = notify_notification_new(summary, body, NOTIFICATION_ICON);
+    notify_notification_show(notification, NULL);
+
+    notify_uninit();
+}
 
 static void on_countdown_start() {
     countdown_start(countdown);
@@ -47,28 +62,17 @@ static void on_countdown_finish() {
     indicator_finish_countdown(indicator_countdown);
 }
 
-static void show_notification() {
-    notify_init("countdown-indicator");
-
-    GError *error = NULL;
-    NotifyNotification *notification = notify_notification_new("Countdown", "It's time!", "countdown-status");
-    notify_notification_show(notification, &error);
-
-    notify_uninit();
-}
-
 int main(int argc, char *argv[]) {
-
     gtk_init(&argc, &argv);
+    settings_init();
 
-    settings = g_settings_new(GSETTINS_SCHEMA_ID);
-    signed long timout = g_settings_get_int(settings, "timeout");
+    int timeout = g_settings_get_int(settings_countdown_preset1(), KEY_TIMEOUT);
 
-    countdown = countdown_new_from_seconds(timout);
+    countdown = countdown_new_from_seconds(timeout);
     countdown_tick_callback_add(countdown, on_countdown_tick);
     countdown_finished_callback_add(countdown, on_countdown_finish);
 
-    indicator_countdown = indicator_new(timout);
+    indicator_countdown = indicator_new(timeout);
     indicator_start_pressed_callback_add(indicator_countdown, on_countdown_start);
     indicator_stop_pressed_callback(indicator_countdown, on_countdown_stop);
 

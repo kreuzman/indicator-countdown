@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Michal Kreuzman
+ * Copyright (C) 2017 Michal Kreuzman
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ static const gchar *ABOUT_DIALOG_GLADE =
                 "    <property name=\"gravity\">north-east</property>"
                 "    <property name=\"program_name\">Countdown Indicator</property>"
                 "    <property name=\"version\">1.0</property>"
-                "    <property name=\"copyright\" translatable=\"yes\">@ 2016 Michal Kreuzman</property>"
+                "    <property name=\"copyright\" translatable=\"yes\">@ 2017 Michal Kreuzman</property>"
                 "    <property name=\"comments\" translatable=\"yes\">A countdown timer capable of notify after given time passed.</property>"
                 "    <property name=\"license\" translatable=\"yes\">This program is free software; you can redistribute it and/or modify"
                 "it under the terms of the GNU General Public License as published by"

@@ -16,24 +16,14 @@
  * Authors:
  *      Michal Kreuzman <michal.kreuzman@gmail.com>
  */
-#ifndef INDICATOR_H_
-#define INDICATOR_H_
 
-typedef struct Indicator Indicator;
+#ifndef INDICATOR_COUNTDOWN_SETTINGS_H
+#define INDICATOR_COUNTDOWN_SETTINGS_H
 
-#include <libappindicator/app-indicator.h>
-#include <gtk/gtk.h>
+void settings_init();
 
-Indicator *indicator_new(signed long timeout);
+GSettings *settings_general();
 
-void indicator_destroy(Indicator *indicator);
+GSettings *settings_countdown_preset1();
 
-void indicator_start_pressed_callback_add(Indicator *indicator, void (*on_start)());
-
-void indicator_stop_pressed_callback(Indicator *indicator, void (*on_stop)());
-
-void indicator_update_elapsed_time(Indicator *indicator, unsigned int percent_elapsed);
-
-void indicator_finish_countdown(Indicator *indicator);
-
-#endif //INDICATOR_H_
+#endif //INDICATOR_COUNTDOWN_SETTINGS_H
