@@ -12,7 +12,7 @@
 
     <schema id="com.kreuzman.indicator.countdown.general" path="/com/kreuzman/indicator/countdown/general/" gettext-domain="indicator-countdown">
         <key name="autostart" type="b">
-            <default>true</default>
+            <default>false</default>
             <summary>Automatically start on session startup</summary>
         </key>
 

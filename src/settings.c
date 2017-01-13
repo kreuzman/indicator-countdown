@@ -23,6 +23,9 @@
 const char *KEY_TIMEOUT = "timeout";
 const char *KEY_NOTIFICATON_SUMMARY = "notification-summary";
 const char *KEY_NOTIFICATON_BODY = "notification-body";
+const char *KEY_AUTOSTART = "autostart";
+const char *KEY_APPINDICATOR_COUNTDOWN_VISIBLE = "appindicator-countdown-visible";
+const char *KEY_NOTIFICATION_VISIBLE = "notifications-visible";
 
 static const char *GSETTINS_GENERAL_SCHEMA_ID = "com.kreuzman.indicator.countdown.general";
 static const char *GSETTINS_PRESET1_SCHEMA_ID = "com.kreuzman.indicator.countdown.presets.preset1";

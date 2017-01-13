@@ -280,7 +280,7 @@
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkTextView" id="notification_message">
+                      <object class="GtkTextView" id="textview_notification_message">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="pixels_below_lines">60</property>

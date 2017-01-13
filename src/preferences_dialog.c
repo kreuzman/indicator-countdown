@@ -346,6 +346,9 @@ static const gchar *PREFERENCES_DIALOG_GLADE =
         "</interface>";
 
 extern const char *KEY_NOTIFICATON_BODY;
+extern const char *KEY_AUTOSTART;
+extern const char *KEY_APPINDICATOR_COUNTDOWN_VISIBLE;
+extern const char *KEY_NOTIFICATION_VISIBLE;
 
 struct PreferencesDialog {
     GtkDialog *dialog;
@@ -371,8 +374,11 @@ void preferences_dialog_show(PreferencesDialog *preferences_dialog) {
     GtkBuilder *builder = gtk_builder_new_from_file("../resources/preferences_dialog_gui.glade");
     // GtkBuilder *builder = gtk_builder_new_from_string(PREFERENCES_DIALOG_GLADE, -1);
     preferences_dialog->dialog = GTK_DIALOG (gtk_builder_get_object(builder, "preferences_dialog"));
+    GtkTextView *textView = GTK_TEXT_VIEW (gtk_builder_get_object(builder, "textview_notification_message"));
 
-    GtkTextView *textView = GTK_TEXT_VIEW (gtk_builder_get_object(builder, "notification_message"));
+    g_settings_bind(settings_general(), KEY_AUTOSTART, gtk_builder_get_object(builder, "switch_autostart"), "active", G_SETTINGS_BIND_DEFAULT);
+    g_settings_bind(settings_general(), KEY_APPINDICATOR_COUNTDOWN_VISIBLE, gtk_builder_get_object(builder, "switch_show_countdown"), "active", G_SETTINGS_BIND_DEFAULT);
+    g_settings_bind(settings_general(), KEY_NOTIFICATION_VISIBLE, gtk_builder_get_object(builder, "switch_show_notifications"), "active", G_SETTINGS_BIND_DEFAULT);
     g_settings_bind(settings_countdown_preset1(), KEY_NOTIFICATON_BODY, gtk_text_view_get_buffer(textView), "text", G_SETTINGS_BIND_DEFAULT);
 
     g_object_unref(G_OBJECT (builder));

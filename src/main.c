@@ -27,6 +27,7 @@
 extern const char *KEY_TIMEOUT;
 extern const char *KEY_NOTIFICATON_SUMMARY;
 extern const char *KEY_NOTIFICATON_BODY;
+extern const char *KEY_NOTIFICATION_VISIBLE;
 
 static Indicator *indicator_countdown;
 static Countdown *countdown;
@@ -58,8 +59,10 @@ static void on_countdown_tick() {
 }
 
 static void on_countdown_finish() {
-    show_notification();
     indicator_finish_countdown(indicator_countdown);
+    if (g_settings_get_boolean(settings_general(), KEY_NOTIFICATION_VISIBLE)) {
+        show_notification();
+    }
 }
 
 int main(int argc, char *argv[]) {
