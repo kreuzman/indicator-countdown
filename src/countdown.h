@@ -25,8 +25,6 @@ typedef struct Countdown Countdown;
 
 Countdown *countdown_new(signed long duration);
 
-Countdown *countdown_new_from_seconds(signed long duration);
-
 void countdown_destroy(Countdown *countdown);
 
 void countdown_tick_callback_add(Countdown *countdown, void (*tick_callback)());
@@ -39,10 +37,6 @@ void countdown_reset(Countdown *countdown);
 
 bool countdown_is_finished(Countdown *countdown);
 
-signed long countdown_get_duration(Countdown *countdown);
-
 signed long countdown_get_elapsed_time(Countdown *countdown);
-
-unsigned int countdown_get_elapsed_time_percent(Countdown *countdown);
 
 #endif //COUNTDOWN_H_

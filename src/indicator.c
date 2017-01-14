@@ -25,10 +25,13 @@
 #include "indicator.h"
 #include "about_dialog.h"
 #include "preferences_dialog.h"
+#include "settings.h"
+
+extern const char *KEY_APPINDICATOR_COUNTDOWN_VISIBLE;
 
 static const char *ICON_NAME = "countdown";
 
-static GtkMenu *menu_init(Indicator *indicator_countdown);
+static GtkMenu *menu_init(Indicator *indicator);
 
 static AppIndicator *app_indicator_init(GtkMenu *menu);
 
@@ -41,6 +44,8 @@ static void show_preferences_dialog(GtkButton *button, gpointer data);
 static void show_about_dialog(GtkButton *button, gpointer data);
 
 static void quit(GtkButton *button, gpointer data);
+
+static const char *resolve_icon_name(unsigned int percent);
 
 static const char *time_as_string(signed long time);
 
@@ -87,31 +92,50 @@ void indicator_destroy(Indicator *indicator) {
     free(indicator);
 }
 
-void indicator_update_elapsed_time(Indicator *indicator, unsigned int percent_elapsed) {
-    unsigned int icon_percent = (percent_elapsed % 2 == 0) ? percent_elapsed : percent_elapsed - 1;
-    char icon_name[12];
-    sprintf(icon_name, "countdown-%02d", icon_percent);
+void indicator_update_elapsed_time(Indicator *indicator, signed long time_elapsed) {
+    unsigned int percent_elapsed = (unsigned int) (time_elapsed / ((double) indicator->timeout) * 100);
 
+    const char *icon_name = resolve_icon_name(percent_elapsed);
     app_indicator_set_icon(indicator->app_indicator, icon_name);
+    free((void *) icon_name);
+
+    if (g_settings_get_boolean(settings_general(), KEY_APPINDICATOR_COUNTDOWN_VISIBLE)) {
+        const char *start_label = time_as_string(time_elapsed);
+        app_indicator_set_label(indicator->app_indicator, start_label, NULL);
+        free((void *) start_label);
+    } else {
+        app_indicator_set_label(indicator->app_indicator, NULL, NULL);
+    }
 }
 
 void indicator_finish_countdown(Indicator *indicator) {
     app_indicator_set_icon(indicator->app_indicator, ICON_NAME);
+    app_indicator_set_label(indicator->app_indicator, NULL, NULL);
 }
 
-void indicator_start_pressed_callback_add(Indicator *indicator, void (*start_button_press_callback)()) {
+void indicator_set_start_pressed_callback(Indicator *indicator, void (*start_button_press_callback)()) {
     indicator->start_button_press_callback = start_button_press_callback;
 }
 
-void indicator_stop_pressed_callback(Indicator *indicator, void (*stop_pressed_callback)()) {
+void indicator_set_stop_pressed_callback(Indicator *indicator, void (*stop_pressed_callback)()) {
     indicator->stop_pressed_callback = stop_pressed_callback;
 }
 
 /*
  * UI functions
  */
-static GtkMenu *menu_init(Indicator *indicator_countdown) {
-    const char *start_label = time_as_string(indicator_countdown->timeout);
+static AppIndicator *app_indicator_init(GtkMenu *menu) {
+    AppIndicator *indicator = app_indicator_new("countdown-indicator", ICON_NAME,
+                                                APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
+    app_indicator_set_attention_icon(indicator, "countdown-indicator");
+    app_indicator_set_menu(indicator, menu);
+
+    return indicator;
+}
+
+static GtkMenu *menu_init(Indicator *indicator) {
+    const char *start_label = time_as_string(indicator->timeout);
 
     GtkMenu *indicator_menu = GTK_MENU (gtk_menu_new());
     GtkMenuItem *start_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label(start_label));
@@ -126,27 +150,17 @@ static GtkMenu *menu_init(Indicator *indicator_countdown) {
     gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (about_menu_item));
     gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (quit_menu_item));
 
-    g_signal_connect(start_menu_item, "activate", G_CALLBACK(start_countdown), indicator_countdown);
-    g_signal_connect(stop_menu_item, "activate", G_CALLBACK(stop_countdown), indicator_countdown);
-    g_signal_connect(preferences_menu_item, "activate", G_CALLBACK(show_preferences_dialog), indicator_countdown);
-    g_signal_connect(about_menu_item, "activate", G_CALLBACK(show_about_dialog), indicator_countdown);
-    g_signal_connect(quit_menu_item, "activate", G_CALLBACK(quit), indicator_countdown);
+    g_signal_connect(start_menu_item, "activate", G_CALLBACK(start_countdown), indicator);
+    g_signal_connect(stop_menu_item, "activate", G_CALLBACK(stop_countdown), indicator);
+    g_signal_connect(preferences_menu_item, "activate", G_CALLBACK(show_preferences_dialog), indicator);
+    g_signal_connect(about_menu_item, "activate", G_CALLBACK(show_about_dialog), indicator);
+    g_signal_connect(quit_menu_item, "activate", G_CALLBACK(quit), indicator);
 
     gtk_widget_show_all(GTK_WIDGET (indicator_menu));
 
     free((void *) start_label);
 
     return indicator_menu;
-}
-
-static AppIndicator *app_indicator_init(GtkMenu *menu) {
-    AppIndicator *indicator = app_indicator_new("countdown-indicator", ICON_NAME,
-                                                APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-    app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
-    app_indicator_set_attention_icon(indicator, "countdown-indicator");
-    app_indicator_set_menu(indicator, menu);
-
-    return indicator;
 }
 
 /*
@@ -161,6 +175,7 @@ static void start_countdown(GtkButton *button, gpointer data) {
 static void stop_countdown(GtkButton *button, gpointer data) {
     Indicator *indicator = data;
     app_indicator_set_icon(indicator->app_indicator, ICON_NAME);
+    app_indicator_set_label(indicator->app_indicator, NULL, NULL);
     indicator->stop_pressed_callback();
 }
 
@@ -200,12 +215,22 @@ static void quit(GtkButton *button, gpointer data) {
  * Util functions
  */
 static const char *time_as_string(signed long time) {
+    time /= 1000000;
     int seconds = (int) (time % 60);
     int minutes = (int) ((time / 60) % 60);
     int hours = (int) ((time / 60 / 60) % 60);
 
     char *buffer = malloc(9);
     sprintf(buffer, "%02d:%02d:%02d", hours, minutes, seconds);
+
+    return buffer;
+}
+
+static const char *resolve_icon_name(unsigned int percent) {
+    unsigned int icon_percent = (percent % 2 == 0) ? percent : percent - 1;
+
+    char *buffer = malloc(12);
+    sprintf(buffer, "countdown-%02d", icon_percent);
 
     return buffer;
 }

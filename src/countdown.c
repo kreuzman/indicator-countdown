@@ -24,8 +24,6 @@
 
 #include "countdown.h"
 
-static const int ONE_SECOND_MICRO = 1000000;
-
 struct Countdown {
     signed long duration;
     signed long start;
@@ -59,10 +57,6 @@ Countdown *countdown_new(signed long duration) {
     return result;
 }
 
-Countdown *countdown_new_from_seconds(signed long duration_seconds) {
-    return countdown_new(duration_seconds * ONE_SECOND_MICRO);
-}
-
 void countdown_destroy(Countdown *countdown) {
     free(countdown);
 }
@@ -92,18 +86,10 @@ bool countdown_is_finished(Countdown *countdown) {
     return (countdown->end <= g_get_monotonic_time());
 }
 
-signed long countdown_get_duration(Countdown *countdown) {
-    return countdown->duration;
-}
-
 signed long countdown_get_elapsed_time(Countdown *countdown) {
     if (countdown->start != 0) {
         return g_get_monotonic_time() - countdown->start;
     }
 
     return 0;
-}
-
-unsigned int countdown_get_elapsed_time_percent(Countdown *countdown) {
-    return (unsigned int) (countdown_get_elapsed_time(countdown) / (double) countdown_get_duration(countdown) * 100);
 }
