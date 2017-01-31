@@ -34,7 +34,7 @@ static Countdown *countdown;
 
 static const char *APP_NAME = "countdown-indicator";
 static const char *NOTIFICATION_ICON = "countdown-status";
-static const int ONE_SECOND_MICRO = 1000000;
+static const signed long ONE_SECOND_MICRO = 1000000;
 
 static void show_notification() {
     notify_init(APP_NAME);
