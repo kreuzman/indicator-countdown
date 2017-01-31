@@ -100,7 +100,7 @@ void indicator_update_elapsed_time(Indicator *indicator, signed long time_elapse
     free((void *) icon_name);
 
     if (g_settings_get_boolean(settings_general(), KEY_APPINDICATOR_COUNTDOWN_VISIBLE)) {
-        const char *start_label = time_as_string(time_elapsed);
+        const char *start_label = time_as_string(indicator->timeout - time_elapsed);
         app_indicator_set_label(indicator->app_indicator, start_label, NULL);
         free((void *) start_label);
     } else {
