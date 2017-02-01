@@ -47,14 +47,6 @@ static void show_notification() {
     notify_uninit();
 }
 
-static void on_countdown_start() {
-    countdown_start(countdown);
-}
-
-static void on_countdown_stop() {
-    countdown_reset(countdown);
-}
-
 static void on_countdown_tick() {
     indicator_update_elapsed_time(indicator_countdown, countdown_get_elapsed_time(countdown));
 }
@@ -64,6 +56,23 @@ static void on_countdown_finish() {
     if (g_settings_get_boolean(settings_general(), KEY_NOTIFICATION_VISIBLE)) {
         show_notification();
     }
+
+    countdown_destroy(countdown);
+}
+
+static void on_countdown_start() {
+    signed long timeout = g_settings_get_int(settings_countdown_preset1(), KEY_TIMEOUT) * ONE_SECOND_MICRO;
+
+    countdown = countdown_new(timeout);
+    countdown_tick_callback_add(countdown, on_countdown_tick);
+    countdown_finished_callback_add(countdown, on_countdown_finish);
+
+    countdown_start(countdown);
+}
+
+static void on_countdown_stop() {
+    countdown_reset(countdown);
+    countdown_destroy(countdown);
 }
 
 int main(int argc, char *argv[]) {
@@ -72,17 +81,12 @@ int main(int argc, char *argv[]) {
 
     signed long timeout = g_settings_get_int(settings_countdown_preset1(), KEY_TIMEOUT) * ONE_SECOND_MICRO;
 
-    countdown = countdown_new(timeout);
-    countdown_tick_callback_add(countdown, on_countdown_tick);
-    countdown_finished_callback_add(countdown, on_countdown_finish);
-
     indicator_countdown = indicator_new(timeout);
     indicator_set_start_pressed_callback(indicator_countdown, on_countdown_start);
     indicator_set_stop_pressed_callback(indicator_countdown, on_countdown_stop);
 
     gtk_main();
 
-    countdown_destroy(countdown);
     indicator_destroy(indicator_countdown);
 
     return 0;
