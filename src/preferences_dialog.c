@@ -351,7 +351,7 @@ extern const char *KEY_AUTOSTART;
 extern const char *KEY_APPINDICATOR_COUNTDOWN_VISIBLE;
 extern const char *KEY_NOTIFICATION_VISIBLE;
 
-static void timeout_changed(GtkSpinButton *button, PreferencesDialog *preferences_dialog);
+static void timeout_sp_value_changed(GtkSpinButton *button, PreferencesDialog *preferences_dialog);
 
 static void update_timeout_spin_buttons(PreferencesDialog *preferences_dialog, int timeout);
 
@@ -360,12 +360,20 @@ struct PreferencesDialog {
     GtkSpinButton *hours_sb;
     GtkSpinButton *minutes_sb;
     GtkSpinButton *seconds_sb;
+
+    void (*timeout_change_callback)(gpointer data);
+
+    gpointer timeout_change_callback_data;
 };
 
 PreferencesDialog *preferences_dialog_new() {
     struct PreferencesDialog *preferences_dialog = (struct PreferencesDialog *) malloc(
             sizeof(struct PreferencesDialog));
+
     preferences_dialog->dialog = NULL;
+    preferences_dialog->timeout_change_callback = NULL;
+    preferences_dialog->timeout_change_callback_data = NULL;
+
     return preferences_dialog;
 }
 
@@ -389,9 +397,12 @@ void preferences_dialog_show(PreferencesDialog *preferences_dialog) {
     int timeout = g_settings_get_int(settings_countdown_preset1(), KEY_TIMEOUT);
     update_timeout_spin_buttons(preferences_dialog, timeout);
 
-    g_signal_connect(preferences_dialog->seconds_sb, "value-changed", G_CALLBACK(timeout_changed), preferences_dialog);
-    g_signal_connect(preferences_dialog->minutes_sb, "value-changed", G_CALLBACK(timeout_changed), preferences_dialog);
-    g_signal_connect(preferences_dialog->hours_sb, "value-changed", G_CALLBACK(timeout_changed), preferences_dialog);
+    g_signal_connect(preferences_dialog->seconds_sb, "value-changed", G_CALLBACK(timeout_sp_value_changed),
+                     preferences_dialog);
+    g_signal_connect(preferences_dialog->minutes_sb, "value-changed", G_CALLBACK(timeout_sp_value_changed),
+                     preferences_dialog);
+    g_signal_connect(preferences_dialog->hours_sb, "value-changed", G_CALLBACK(timeout_sp_value_changed),
+                     preferences_dialog);
 
     g_settings_bind(
             settings_general(),
@@ -435,7 +446,13 @@ void preferences_dialog_close(PreferencesDialog *preferences_dialog) {
     }
 }
 
-static void timeout_changed(GtkSpinButton *button, PreferencesDialog *preferences_dialog) {
+void preferences_dialog_set_timeout_change_callback(PreferencesDialog *pref_dialog, void (*callback)(gpointer),
+                                                    gpointer data) {
+    pref_dialog->timeout_change_callback = callback;
+    pref_dialog->timeout_change_callback_data = data;
+}
+
+static void timeout_sp_value_changed(GtkSpinButton *button, PreferencesDialog *preferences_dialog) {
     gdouble seconds = gtk_spin_button_get_value(preferences_dialog->seconds_sb);
     gdouble minutes = gtk_spin_button_get_value(preferences_dialog->minutes_sb);
     gdouble hours = gtk_spin_button_get_value(preferences_dialog->hours_sb);
@@ -447,6 +464,10 @@ static void timeout_changed(GtkSpinButton *button, PreferencesDialog *preference
 
     update_timeout_spin_buttons(preferences_dialog, timeout);
     g_settings_set_int(settings_countdown_preset1(), KEY_TIMEOUT, timeout);
+
+    if (preferences_dialog->timeout_change_callback != NULL) {
+        preferences_dialog->timeout_change_callback(preferences_dialog->timeout_change_callback_data);
+    }
 }
 
 static void update_timeout_spin_buttons(PreferencesDialog *preferences_dialog, int timeout) {

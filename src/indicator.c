@@ -28,6 +28,8 @@
 #include "settings.h"
 
 extern const char *KEY_APPINDICATOR_COUNTDOWN_VISIBLE;
+extern const char *KEY_TIMEOUT;
+extern const signed long ONE_SECOND_MICRO;
 
 static const char *ICON_NAME = "countdown";
 
@@ -49,10 +51,15 @@ static const char *resolve_icon_name(unsigned int percent);
 
 static const char *time_as_string(signed long time);
 
+static void timeout_changed(gpointer data);
+
+static void update_start_menu_item_label(Indicator *indicator);
+
 struct Indicator {
     signed long timeout;
     AppIndicator *app_indicator;
     GtkMenu *menu;
+    GtkMenuItem *start_menu_item;
     PreferencesDialog *preferences_dialog;
     AboutDialog *about_dialog;
 
@@ -100,9 +107,9 @@ void indicator_update_elapsed_time(Indicator *indicator, signed long time_elapse
     free((void *) icon_name);
 
     if (g_settings_get_boolean(settings_general(), KEY_APPINDICATOR_COUNTDOWN_VISIBLE)) {
-        const char *start_label = time_as_string(indicator->timeout - time_elapsed);
-        app_indicator_set_label(indicator->app_indicator, start_label, NULL);
-        free((void *) start_label);
+        const char *indicator_label = time_as_string(indicator->timeout - time_elapsed);
+        app_indicator_set_label(indicator->app_indicator, indicator_label, NULL);
+        free((void *) indicator_label);
     } else {
         app_indicator_set_label(indicator->app_indicator, NULL, NULL);
     }
@@ -121,6 +128,10 @@ void indicator_set_stop_pressed_callback(Indicator *indicator, void (*stop_press
     indicator->stop_pressed_callback = stop_pressed_callback;
 }
 
+void indicator_set_timeout(Indicator *indicator, signed long timeout) {
+    indicator->timeout = timeout;
+}
+
 /*
  * UI functions
  */
@@ -135,22 +146,20 @@ static AppIndicator *app_indicator_init(GtkMenu *menu) {
 }
 
 static GtkMenu *menu_init(Indicator *indicator) {
-    const char *start_label = time_as_string(indicator->timeout);
-
     GtkMenu *indicator_menu = GTK_MENU (gtk_menu_new());
-    GtkMenuItem *start_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label(start_label));
+    indicator->start_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label("Start"));
     GtkMenuItem *stop_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label("Stop"));
     GtkMenuItem *preferences_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label("Preferences"));
     GtkMenuItem *about_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label("About"));
     GtkMenuItem *quit_menu_item = GTK_MENU_ITEM (gtk_menu_item_new_with_label("Quit"));
 
-    gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (start_menu_item));
+    gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (indicator->start_menu_item));
     gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (stop_menu_item));
     gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (preferences_menu_item));
     gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (about_menu_item));
     gtk_menu_shell_append(GTK_MENU_SHELL (indicator_menu), GTK_WIDGET (quit_menu_item));
 
-    g_signal_connect(start_menu_item, "activate", G_CALLBACK(start_countdown), indicator);
+    g_signal_connect(indicator->start_menu_item, "activate", G_CALLBACK(start_countdown), indicator);
     g_signal_connect(stop_menu_item, "activate", G_CALLBACK(stop_countdown), indicator);
     g_signal_connect(preferences_menu_item, "activate", G_CALLBACK(show_preferences_dialog), indicator);
     g_signal_connect(about_menu_item, "activate", G_CALLBACK(show_about_dialog), indicator);
@@ -158,7 +167,7 @@ static GtkMenu *menu_init(Indicator *indicator) {
 
     gtk_widget_show_all(GTK_WIDGET (indicator_menu));
 
-    free((void *) start_label);
+    update_start_menu_item_label(indicator);
 
     return indicator_menu;
 }
@@ -183,6 +192,7 @@ static void show_preferences_dialog(GtkButton *button, gpointer data) {
     Indicator *indicator = data;
     if (indicator->preferences_dialog == NULL) {
         indicator->preferences_dialog = preferences_dialog_new();
+        preferences_dialog_set_timeout_change_callback(indicator->preferences_dialog, timeout_changed, indicator);
     }
 
     preferences_dialog_show(indicator->preferences_dialog);
@@ -233,4 +243,17 @@ static const char *resolve_icon_name(unsigned int percent) {
     sprintf(buffer, "countdown-%02d", icon_percent);
 
     return buffer;
+}
+
+static void timeout_changed(gpointer data) {
+    Indicator *indicator = data;
+    update_start_menu_item_label(indicator);
+}
+
+static void update_start_menu_item_label(Indicator *indicator) {
+    signed long timeout = g_settings_get_int(settings_countdown_preset1(), KEY_TIMEOUT) * ONE_SECOND_MICRO;
+
+    const char *start_label = time_as_string(timeout);
+    gtk_menu_item_set_label(indicator->start_menu_item, start_label);
+    free((void *) start_label);
 }

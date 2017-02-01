@@ -28,13 +28,13 @@ extern const char *KEY_TIMEOUT;
 extern const char *KEY_NOTIFICATON_SUMMARY;
 extern const char *KEY_NOTIFICATON_BODY;
 extern const char *KEY_NOTIFICATION_VISIBLE;
+extern const signed long ONE_SECOND_MICRO;
 
 static Indicator *indicator_countdown;
 static Countdown *countdown;
 
 static const char *APP_NAME = "countdown-indicator";
 static const char *NOTIFICATION_ICON = "countdown-status";
-static const signed long ONE_SECOND_MICRO = 1000000;
 
 static void show_notification() {
     notify_init(APP_NAME);
@@ -68,6 +68,7 @@ static void on_countdown_start() {
     countdown_finished_callback_add(countdown, on_countdown_finish);
 
     countdown_start(countdown);
+    indicator_set_timeout(indicator_countdown, timeout);
 }
 
 static void on_countdown_stop() {

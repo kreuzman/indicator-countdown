@@ -30,4 +30,7 @@ void preferences_dialog_show(PreferencesDialog *preferences_dialog);
 
 void preferences_dialog_close(PreferencesDialog *preferences_dialog);
 
+void preferences_dialog_set_timeout_change_callback(PreferencesDialog *pref_dialog, void (*callback)(gpointer),
+                                                    gpointer data);
+
 #endif //INDICATOR_COUNTDOWN_PREFERENCES_DIALOG_H

@@ -32,6 +32,8 @@ void indicator_set_start_pressed_callback(Indicator *indicator, void (*on_start)
 
 void indicator_set_stop_pressed_callback(Indicator *indicator, void (*on_stop)());
 
+void indicator_set_timeout(Indicator *indicator, signed long timeout);
+
 void indicator_update_elapsed_time(Indicator *indicator, signed long time_elapsed);
 
 void indicator_finish_countdown(Indicator *indicator);

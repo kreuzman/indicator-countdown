@@ -24,6 +24,8 @@
 
 #include "countdown.h"
 
+const signed long ONE_SECOND_MICRO = 1000000;
+
 struct Countdown {
     signed long duration;
     signed long start;
